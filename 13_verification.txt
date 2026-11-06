@@ -1,0 +1,23 @@
+PACKAGE VERIFICATION - NGF PROJECT 04
+All three scaffold notebooks executed code cells in order in clean isolated
+Python namespaces, with outputs saved. Checks are disabled in shipped scaffolds
+and explicitly show TODO. The same three notebooks passed with checks enabled
+against private reference modules. Jupyter kernel launch was not tested here.
+The private group runner, dataset checks and mini checks passed. Raw data were
+cleaned and compared field-by-field with separately retained generation truth.
+The shipped runner correctly reports PROJECT INCOMPLETE and exits with code 2.
+No private solution, generated chart or reference report is included.
+
+Raw rows: 726. Expected unique calendar/entity keys: 720. Clean rows: 719.
+Removed exact duplicates: 3. Quarantined physical records: 4.
+Period: July 1-August 29, 2026. Entities: 12. Missing key: E06 / July 1.
+Weighted self_consumption_pct: 85.3207962409
+Source column totals (diagnostic controls, NOT all suitable business KPIs):
+generation_kwh: 201748.00
+load_kwh: 214902.00
+export_kwh: 29615.00
+import_kwh: 42769.00
+
+Runtime: Python 3.10.9, pandas 1.5.3, Matplotlib 3.7.2, nbformat 5.7.0.
+Fresh dependency installation and offline wheel transfer were not tested.
+Charts produced by students still need manual review for readability and meaning.

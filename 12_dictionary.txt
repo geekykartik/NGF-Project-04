@@ -1,0 +1,77 @@
+NGF COLLEGE PROJECT 04: SOLAR ENERGY SELF-CONSUMPTION ANALYTICS
+ All observations are synthetic teaching data, not real organization records.
+ GRAIN: one building meter per day. Key: date + entity_id.
+ Period: July 1-August 29, 2026 inclusive; 12 entities x 60 dates = 720 expected.
+ Entity IDs E01-E12: E01-E04 North; E05-E08 Central; E09-E12 South.
+ segment is a fixed reporting label, not an additional grain dimension.
+ date: ISO YYYY-MM-DD normally. Numeric source columns: generation_kwh, load_kwh, export_kwh, import_kwh.
+ Units follow column suffixes: INR money, kwh energy, kl kilolitres, kg kilograms,
+ km distance, litres fuel, seconds/minutes time. Other columns are item/event counts.
+ Counts must be whole numbers; fuel_litres may have two decimals. All source
+ measures must be finite and >=0. The project context below defines denominators.
+ Daily netting hides within-day imports and exports. These simplified meters cannot support tariff savings or battery sizing.
+ Logical validation relationships: export_kwh <= generation_kwh; import_kwh <= load_kwh.
+ These relationships are business flags to report, not permission to discard
+ structurally valid observations. Reject invalid types, unknown IDs/segments,
+ negative numbers and fractional counts; retain plausible business discrepancies.
+
+ CLEANING POLICY - ALL PROJECTS USE THE SAME AUDIT CONVENTION
+ Raw file: 726 rows. Preserve source_row = physical CSV line (header is line 1).
+ Normalize 3 entity IDs with whitespace/lowercase. Parse 2 DD/MM/YYYY dates using
+ explicit formats. Recover 2 blank segments from the fixed entity mapping.
+ Two generation_kwh fields are formatted with two decimal places and optional comma
+ separators. Parse numeric strings and record normalization when formatting
+ differs from a canonical value. This is a parsing case, not a new measurement.
+ Three exact duplicate records: after normalization, keep first and audit removals.
+ One impossible date and one out-of-period row containing 'unknown': quarantine.
+ E06 on July 1 has two conflicting records: quarantine BOTH after exact dedup.
+ Do not average or choose one conflicting value. Expected clean rows: 719.
+ Audit columns: source_row, action, reason. Actions: repaired, dropped_duplicate,
+ quarantined. Log repaired fields individually; combine rejection reasons per row.
+ Expected removals: 3 duplicate rows and 4 quarantined physical rows.
+ Never mutate the raw CSV. Do not hard-code row positions when finding problems.
+ The two conflicting records are not two legitimate observations.
+
+ BUSINESS ANOMALIES TO RETAIN
+ E01 has a low-generation day on July 21.
+ E07 on August 10 is a documented full closure/measurement exclusion: all activity and denominator fields are zero; retain the record and display undefined rates as NaN.
+ Other day-to-day variation is normal simulated activity, not a deletion rule.
+
+ STUDENT A CONTRACT
+ load_and_clean(path) -> (clean, audit), both pandas DataFrames.
+ clean keeps all original columns, date is datetime64, numeric columns numeric,
+ sorted by date then entity_id with a reset index. The audit retains source lines.
+
+ STUDENT B CONTRACT
+ calculate_metrics(clean) -> (detail, daily, entities). Work on a copy.
+ detail retains clean columns and adds:
+ self_consumed_kwh = generation_kwh-export_kwh
+balance_gap_kwh = generation_kwh+import_kwh-load_kwh-export_kwh
+ rate_numerator = generation_kwh-export_kwh
+ rate_denominator = generation_kwh
+ self_consumption_pct = 100 * rate_numerator / rate_denominator.
+ safe(a,b) in the definitions means a/b if b!=0, otherwise NaN; you implement it.
+ No cross-day balance continuity is assumed for this project.
+ daily: date, sums of numeric source columns, rate_numerator, rate_denominator,
+ observed_rows, weighted_self_consumption_pct. entities: entity_id, sums of numeric source
+ columns, rate_numerator, rate_denominator, weighted_self_consumption_pct.
+ Weighted rate = 100 * summed numerator / summed denominator, NaN if zero.
+ Sort daily by date and entities by ID. Do not average row percentages.
+ Keep full precision; round only displayed values. Percentage columns use points,
+ e.g. 75 means 75 percent. Ratios without _pct are multiples or named unit rates.
+ Some source sums are calculation controls, not meaningful headline KPIs:
+ never present sums of opening/closing snapshots as current balances. For these
+ use the last observed date and state it. Summed daily rate denominators may
+ repeat carried balances; describe the result as a weighted DAILY rate.
+
+ STUDENT C CONTRACT
+ create_report(detail,daily,entities,output_dir) -> list of 4 pathlib.Path objects.
+ 01_trend.png: daily weighted_self_consumption_pct line, date x-axis, percent y-axis.
+ 02_comparison.png: entity weighted_self_consumption_pct, sorted horizontal bars.
+ 03_relationship.png: row-level rate_denominator vs rate_numerator scatter.
+ Include chart titles, units and readable labels; annotate the July 21 E01 case
+ in the report rather than attributing an aggregate change to it without evidence.
+ 04_report.txt: period, 719/720 coverage and missing E06/July 1; 3 calculated
+ numerical findings, 3 feasible actions, and 2 limitations including the domain
+ caveat above. Explain whether a higher rate is desirable in this specific topic.
+ Do not assert causality or real-world impact from this synthetic dataset.
