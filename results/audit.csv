@@ -1,0 +1,17 @@
+source_row,action,reason
+122,quarantined,date outside project period; invalid numeric value in generation_kwh
+166,repaired,"generation_kwh: parse numeric text and normalize numeric formatting (source='289.00', normalized='289')"
+176,repaired,"date: parse supported date format and normalize to ISO (source='21/07/2026', normalized='2026-07-21')"
+218,repaired,"date: parse supported date format and normalize to ISO (source='01/08/2026', normalized='2026-08-01')"
+275,repaired,"segment: recover blank segment from fixed entity mapping (source='', normalized='North')"
+368,quarantined,invalid or impossible date
+387,quarantined,conflicting records share the same date and entity_id; all records for this key quarantined
+395,dropped_duplicate,exact duplicate after normalization; kept first occurrence
+416,quarantined,conflicting records share the same date and entity_id; all records for this key quarantined
+472,dropped_duplicate,exact duplicate after normalization; kept first occurrence
+509,repaired,"segment: recover blank segment from fixed entity mapping (source='', normalized='Central')"
+557,repaired,"entity_id: trim whitespace and normalize case (source=' e09 ', normalized='E09')"
+605,repaired,"entity_id: trim whitespace and normalize case (source=' e04 ', normalized='E04')"
+627,repaired,"generation_kwh: parse numeric text and normalize numeric formatting (source='276.00', normalized='276')"
+699,repaired,"entity_id: trim whitespace and normalize case (source=' e01 ', normalized='E01')"
+725,dropped_duplicate,exact duplicate after normalization; kept first occurrence
